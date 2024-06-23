@@ -96,10 +96,12 @@
         }
 
         async function displayPostsByDate(date) {
+            console.log("Data selezionata:", date);
             const container = document.getElementById('news-container');
             container.innerHTML = '';
 
             const filteredPosts = allPosts.filter(post => post.date === date);
+            console.log("Post filtrati:", filteredPosts);
 
             for (const post of filteredPosts) {
                 try {

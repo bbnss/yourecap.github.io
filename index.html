@@ -87,9 +87,12 @@
                 }
                 allPosts = await response.json();
                 console.log("Posts caricati:", allPosts);
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('date-selector').value = today;
-                await displayPostsByDate(today);
+                const latestDate = allPosts.reduce((latest, post) => {
+                    return post.date > latest ? post.date : latest;
+                }, "1970-01-01");
+        
+        document.getElementById('date-selector').value = latestDate;
+        await displayPostsByDate(latestDate);
             } catch (error) {
                 console.error('Errore:', error);
                 document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';

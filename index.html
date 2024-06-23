@@ -86,6 +86,7 @@
                     throw new Error('Errore nel caricamento dell\'indice dei post');
                 }
                 allPosts = await response.json();
+                console.log("Posts caricati:", allPosts);
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('date-selector').value = today;
                 await displayPostsByDate(today);
@@ -100,8 +101,10 @@
             const container = document.getElementById('news-container');
             container.innerHTML = '';
 
-            const filteredPosts = allPosts.filter(post => post.date === date);
-            console.log("Post filtrati:", filteredPosts);
+            const filteredPosts = allPosts.filter(post => {
+                console.log("Confronto date:", post.date, date, post.date === date);
+                return post.date === date;
+            });
 
             for (const post of filteredPosts) {
                 try {

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouRecap Italia</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        #main-content {
+            flex: 3;
+            margin-right: 20px;
+        }
+        #sidebar {
+            flex: 1;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+        }
+        #news-container {
+            overflow: hidden;
+        }
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+        .news-item h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .news-item p {
+            font-size: 14px;
+            color: #666;
+        }
+        .source {
+            font-size: 12px;
+            color: #999;
+        }
+        #date-selector {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <header>
+            <h1>YouReacap Italia</h1>
+        </header>
+        <main id="news-container">
+            <!-- I post verranno caricati qui dinamicamente -->
+        </main>
+    </div>
+    <div id="sidebar">
+        <h2>Seleziona Data</h2>
+        <input type="date" id="date-selector">
+    </div>
+
+    <script>
+        const converter = new showdown.Converter();
+        let allPosts = [];
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('posts.json');
+                if (!response.ok) {
+                    throw new Error('Errore nel caricamento dell\'indice dei post');
+                }
+                allPosts = await response.json();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('date-selector').value = today;
+                await displayPostsByDate(today);
+            } catch (error) {
+                console.error('Errore:', error);
+                document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';
+            }
+        }
+
+        async function displayPostsByDate(date) {
+            const container = document.getElementById('news-container');
+            container.innerHTML = '';
+
+            const filteredPosts = allPosts.filter(post => post.date === date);
+
+            for (const post of filteredPosts) {
+                try {
+                    const markdown = await fetchMarkdownPost(post.filename);
+                    const html = converter.makeHtml(markdown);
+                    const postElement = createPostElement(html, post.source);
+                    container.appendChild(postElement);
+                } catch (error) {
+                    console.error(`Errore nel caricamento del post ${post.filename}:`, error);
+                }
+            }
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = '<p>Nessuna notizia disponibile per questa data.</p>';
+            }
+        }
+
+        async function fetchMarkdownPost(filename) {
+            const response = await fetch(`posts/${filename}`);
+            if (!response.ok) {
+                throw new Error(`Errore nel caricamento del post: ${filename}`);
+            }
+            return await response.text();
+        }
+
+        function createPostElement(html, source) {
+            const postElement = document.createElement('div');
+            postElement.className = 'news-item';
+            postElement.innerHTML = html;
+
+            const sourceElement = document.createElement('span');
+            sourceElement.className = 'source';
+            sourceElement.textContent = `Fonte: ${source}`;
+            postElement.appendChild(sourceElement);
+
+            return postElement;
+        }
+
+        document.getElementById('date-selector').addEventListener('change', (event) => {
+            displayPostsByDate(event.target.value);
+        });
+
+        // Carica i post iniziali
+        loadPosts();
+    </script>
+</body>
+</html>

@@ -2,206 +2,113 @@
 layout: default
 ---
 
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoRecap Italia</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .content-wrapper {
-            display: flex;
-            max-width: 1200px;
-            margin: 0 auto;
-            flex-grow: 1;
-        }
-        header {
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .subtitle {
-            font-size: 18px;
-            color: #666;
-            margin-top: 5px;
-        }
-        #main-content {
-            flex: 3;
-            margin-right: 20px;
-        }
-        #sidebar {
-            flex: 1;
-            padding: 20px;
-            background-color: #f4f4f4;
-            border-radius: 5px;
-        }
-        #news-container {
-            overflow: hidden;
-        }
-        .news-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ccc;
-        }
-        .news-item h2 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        .news-item p {
-            font-size: 14px;
-            color: #666;
-        }
-        .source {
-            font-size: 12px;
-            color: #999;
-        }
-        #date-selector {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        footer {
-            background-color: #f4f4f4;
-            padding: 20px;
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        .footer-disclaimer {
-            margin-bottom: 20px;
-        }
-        .footer-credit {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .footer-credit img {
-            margin-left: 10px;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>CryptoRecap</h1>
-        <div class="subtitle">Riassunto Crypto Trading News</div>
-    </header>
+<div id="main-content">
+    <h1>CryptoRecap</h1>
+    <p>Riassunto Crypto Trading News</p>
     
-    <div class="content-wrapper">
-        <div id="main-content">
-            <main id="news-container">
-                <!-- I post verranno caricati qui dinamicamente -->
-            </main>
-        </div>
-        <div id="sidebar">
-            <h2>Seleziona Data</h2>
-            <input type="date" id="date-selector">
-        </div>
+    <div id="date-selector-container">
+        <h2>Seleziona Data</h2>
+        <input type="date" id="date-selector">
     </div>
 
-    <footer>
-        <div class="footer-disclaimer">
-            Questo riassunto è stato generato automaticamente da un sistema di intelligenza artificiale. Sebbene si sia cercato di garantire accuratezza e completezza, potrebbero esserci imprecisioni o omissioni. Si consiglia di verificare le informazioni chiave consultando le fonti originali. Questo testo non sostituisce la lettura del materiale completo.
-        </div>
-        <div class="footer-credit">
-            Posts creati con YouRecap
-            <a href="https://github.com/bbnss/YouRecap" target="_blank">
-                <img src="https://github.com/fluidicon.png" width="24" height="24" alt="GitHub icon">
-            </a>
-        </div>
-    </footer>
+    <div id="news-container">
+        <!-- I post verranno caricati qui dinamicamente -->
+    </div>
+</div>
 
-    <script>
-        const converter = new showdown.Converter();
-        let allPosts = [];
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+<script>
+    const converter = new showdown.Converter();
+    let allPosts = [];
 
-        async function loadPosts() {
-            try {
-                const response = await fetch('posts.json');
-                if (!response.ok) {
-                    throw new Error('Errore nel caricamento dell\'indice dei post');
-                }
-                allPosts = await response.json();
-                console.log("Posts caricati:", allPosts);
-                const latestDate = allPosts.reduce((latest, post) => {
-                    return post.date > latest ? post.date : latest;
-                }, "1970-01-01");
-        
-                document.getElementById('date-selector').value = latestDate;
-                await displayPostsByDate(latestDate);
-            } catch (error) {
-                console.error('Errore:', error);
-                document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';
-            }
-        }
-
-        async function displayPostsByDate(date) {
-            console.log("Data selezionata:", date);
-            const container = document.getElementById('news-container');
-            container.innerHTML = '';
-
-            const filteredPosts = allPosts.filter(post => {
-                console.log("Confronto date:", post.date, date, post.date === date);
-                return post.date === date;
-            });
-
-            for (const post of filteredPosts) {
-                try {
-                    const markdown = await fetchMarkdownPost(post.filename);
-                    const html = converter.makeHtml(markdown);
-                    const postElement = createPostElement(html, post.source);
-                    container.appendChild(postElement);
-                } catch (error) {
-                    console.error(`Errore nel caricamento del post ${post.filename}:`, error);
-                }
-            }
-
-            if (filteredPosts.length === 0) {
-                container.innerHTML = '<p>Nessuna notizia disponibile per questa data.</p>';
-            }
-        }
-
-        async function fetchMarkdownPost(filename) {
-            const response = await fetch(`posts/${filename}`);
+    async function loadPosts() {
+        try {
+            const response = await fetch('posts.json');
             if (!response.ok) {
-                throw new Error(`Errore nel caricamento del post: ${filename}`);
+                throw new Error('Errore nel caricamento dell\'indice dei post');
             }
-            return await response.text();
+            allPosts = await response.json();
+            console.log("Posts caricati:", allPosts);
+            const latestDate = allPosts.reduce((latest, post) => {
+                return post.date > latest ? post.date : latest;
+            }, "1970-01-01");
+    
+            document.getElementById('date-selector').value = latestDate;
+            await displayPostsByDate(latestDate);
+        } catch (error) {
+            console.error('Errore:', error);
+            document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';
+        }
+    }
+
+    async function displayPostsByDate(date) {
+        console.log("Data selezionata:", date);
+        const container = document.getElementById('news-container');
+        container.innerHTML = '';
+
+        const filteredPosts = allPosts.filter(post => post.date === date);
+
+        for (const post of filteredPosts) {
+            try {
+                const markdown = await fetchMarkdownPost(post.filename);
+                const html = converter.makeHtml(markdown);
+                const postElement = createPostElement(html, post.source);
+                container.appendChild(postElement);
+            } catch (error) {
+                console.error(`Errore nel caricamento del post ${post.filename}:`, error);
+            }
         }
 
-        function createPostElement(html, source) {
-            const postElement = document.createElement('div');
-            postElement.className = 'news-item';
-            postElement.innerHTML = html;
-
-            const sourceElement = document.createElement('span');
-            sourceElement.className = 'source';
-            sourceElement.textContent = `Fonte: ${source}`;
-            postElement.appendChild(sourceElement);
-
-            return postElement;
+        if (filteredPosts.length === 0) {
+            container.innerHTML = '<p>Nessuna notizia disponibile per questa data.</p>';
         }
+    }
 
-        document.getElementById('date-selector').addEventListener('change', (event) => {
-            displayPostsByDate(event.target.value);
-        });
+    async function fetchMarkdownPost(filename) {
+        const response = await fetch(`posts/${filename}`);
+        if (!response.ok) {
+            throw new Error(`Errore nel caricamento del post: ${filename}`);
+        }
+        return await response.text();
+    }
 
-        // Carica i post iniziali
-        loadPosts();
-    </script>
-</body>
-</html>
+    function createPostElement(html, source) {
+        const postElement = document.createElement('div');
+        postElement.className = 'news-item';
+        postElement.innerHTML = html;
+
+        const sourceElement = document.createElement('p');
+        sourceElement.className = 'source';
+        sourceElement.textContent = `Fonte: ${source}`;
+        postElement.appendChild(sourceElement);
+
+        return postElement;
+    }
+
+    document.getElementById('date-selector').addEventListener('change', (event) => {
+        displayPostsByDate(event.target.value);
+    });
+
+    // Carica i post iniziali
+    loadPosts();
+</script>
+
+<style>
+    #main-content {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .news-item {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ccc;
+    }
+    .source {
+        font-size: 0.8em;
+        color: #666;
+    }
+    #date-selector-container {
+        margin-bottom: 20px;
+    }
+</style>

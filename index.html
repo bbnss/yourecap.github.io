@@ -78,7 +78,7 @@ layout: default
         console.error(`Errore nel caricamento del post ${filename}:`, error);
         return `# Errore nel caricamento del post\n\nNon è stato possibile caricare il post "${filename}". Errore: ${error.message}`;
     }
-
+}
 
     function createPostElement(html, source) {
         const postElement = document.createElement('div');

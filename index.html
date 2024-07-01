@@ -12,17 +12,29 @@
             margin: 0;
             padding: 20px;
             display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            display: flex;
             max-width: 1200px;
             margin: 0 auto;
+            flex-grow: 1;
         }
         header {
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
             margin-bottom: 20px;
+            text-align: center;
         }
         h1 {
             margin: 0;
             font-size: 24px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-top: 5px;
         }
         #main-content {
             flex: 3;
@@ -59,21 +71,55 @@
             padding: 5px;
             margin-bottom: 10px;
         }
+        footer {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .footer-disclaimer {
+            margin-bottom: 20px;
+        }
+        .footer-credit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .footer-credit img {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
-    <div id="main-content">
-        <header>
-            <h1>CryptoRecap Italia</h1>
-        </header>
-        <main id="news-container">
-            <!-- I post verranno caricati qui dinamicamente -->
-        </main>
+    <header>
+        <h1>CryptoRecap</h1>
+        <div class="subtitle">Riassunto Crypto Trading News</div>
+    </header>
+    
+    <div class="content-wrapper">
+        <div id="main-content">
+            <main id="news-container">
+                <!-- I post verranno caricati qui dinamicamente -->
+            </main>
+        </div>
+        <div id="sidebar">
+            <h2>Seleziona Data</h2>
+            <input type="date" id="date-selector">
+        </div>
     </div>
-    <div id="sidebar">
-        <h2>Seleziona Data</h2>
-        <input type="date" id="date-selector">
-    </div>
+
+    <footer>
+        <div class="footer-disclaimer">
+            Questo riassunto è stato generato automaticamente da un sistema di intelligenza artificiale. Sebbene si sia cercato di garantire accuratezza e completezza, potrebbero esserci imprecisioni o omissioni. Si consiglia di verificare le informazioni chiave consultando le fonti originali. Questo testo non sostituisce la lettura del materiale completo.
+        </div>
+        <div class="footer-credit">
+            Creato con YouRecap
+            <a href="https://github.com/yourusername/yourrepository" target="_blank">
+                <img src="/api/placeholder/24/24" alt="GitHub" width="24" height="24" />
+            </a>
+        </div>
+    </footer>
 
     <script>
         const converter = new showdown.Converter();
@@ -91,8 +137,8 @@
                     return post.date > latest ? post.date : latest;
                 }, "1970-01-01");
         
-        document.getElementById('date-selector').value = latestDate;
-        await displayPostsByDate(latestDate);
+                document.getElementById('date-selector').value = latestDate;
+                await displayPostsByDate(latestDate);
             } catch (error) {
                 console.error('Errore:', error);
                 document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';

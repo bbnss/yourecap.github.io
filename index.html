@@ -28,6 +28,9 @@ layout: default
                 throw new Error('Errore nel caricamento dell\'indice dei post');
             }
             allPosts = await response.json();
+
+            console.log("Contenuto di posts.json:", JSON.stringify(allPosts, null, 2));
+
             console.log("Posts caricati:", allPosts);
             const latestDate = allPosts.reduce((latest, post) => {
                 return post.date > latest ? post.date : latest;
@@ -65,12 +68,17 @@ layout: default
     }
 
     async function fetchMarkdownPost(filename) {
+    try {
         const response = await fetch(`posts/${filename}`);
         if (!response.ok) {
-            throw new Error(`Errore nel caricamento del post: ${filename}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         return await response.text();
+    } catch (error) {
+        console.error(`Errore nel caricamento del post ${filename}:`, error);
+        return `# Errore nel caricamento del post\n\nNon è stato possibile caricare il post "${filename}". Errore: ${error.message}`;
     }
+
 
     function createPostElement(html, source) {
         const postElement = document.createElement('div');

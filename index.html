@@ -22,54 +22,58 @@ layout: default
     let allPosts = [];
 
     async function loadPosts() {
-        try {
-            const response = await fetch('posts.json');
-            if (!response.ok) {
-                throw new Error('Errore nel caricamento dell\'indice dei post');
-            }
-            allPosts = await response.json();
-
-            console.log("Contenuto di posts.json:", JSON.stringify(allPosts, null, 2));
-
-            console.log("Posts caricati:", allPosts);
-            const latestDate = allPosts.reduce((latest, post) => {
-                return post.date > latest ? post.date : latest;
-            }, "1970-01-01");
-    
-            document.getElementById('date-selector').value = latestDate;
-            await displayPostsByDate(latestDate);
-        } catch (error) {
-            console.error('Errore:', error);
-            document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';
+    try {
+        const response = await fetch('posts.json');
+        if (!response.ok) {
+            throw new Error('Errore nel caricamento dell\'indice dei post');
         }
+        allPosts = await response.json();
+        console.log("Contenuto di posts.json:", JSON.stringify(allPosts, null, 2));
+        console.log("Numero totale di post:", allPosts.length);
+
+        const latestDate = allPosts.reduce((latest, post) => {
+            return post.date > latest ? post.date : latest;
+        }, "1970-01-01");
+
+        console.log("Data più recente:", latestDate);
+        document.getElementById('date-selector').value = latestDate;
+        await displayPostsByDate(latestDate);
+    } catch (error) {
+        console.error('Errore:', error);
+        document.getElementById('news-container').innerHTML = '<p>Errore nel caricamento delle notizie.</p>';
     }
+}
 
     async function displayPostsByDate(date) {
-        console.log("Data selezionata:", date);
-        const container = document.getElementById('news-container');
-        container.innerHTML = '';
+    console.log("Data selezionata:", date);
+    const container = document.getElementById('news-container');
+    container.innerHTML = '';
 
-        const filteredPosts = allPosts.filter(post => post.date === date);
+    const filteredPosts = allPosts.filter(post => post.date === date);
+    console.log("Post filtrati per la data:", filteredPosts);
 
-        for (const post of filteredPosts) {
-            try {
-                const markdown = await fetchMarkdownPost(post.filename);
-                const html = converter.makeHtml(markdown);
-                const postElement = createPostElement(html, post.source);
-                container.appendChild(postElement);
-            } catch (error) {
-                console.error(`Errore nel caricamento del post ${post.filename}:`, error);
-            }
-        }
-
-        if (filteredPosts.length === 0) {
-            container.innerHTML = '<p>Nessuna notizia disponibile per questa data.</p>';
-        }
+    if (filteredPosts.length === 0) {
+        container.innerHTML = '<p>Nessuna notizia disponibile per questa data.</p>';
+        return;
     }
 
+    for (const post of filteredPosts) {
+        try {
+            console.log(`Tentativo di caricamento del post: ${post.filename}`);
+            const markdown = await fetchMarkdownPost(post.filename);
+            const html = converter.makeHtml(markdown);
+            const postElement = createPostElement(html, post.source);
+            container.appendChild(postElement);
+        } catch (error) {
+            console.error(`Errore nel caricamento del post ${post.filename}:`, error);
+        }
+    }
+}
     async function fetchMarkdownPost(filename) {
     try {
-        const response = await fetch(`posts/${filename}`);
+        const baseUrl = 'https://raw.githubusercontent.com/bbnss/yourecap.github.io/main/';
+        const response = await fetch(`${baseUrl}posts/${filename}`);
+        console.log(`Tentativo di caricamento: ${baseUrl}posts/${filename}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

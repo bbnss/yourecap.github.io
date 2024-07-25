@@ -9,7 +9,7 @@ titolo: ETF su ETHEREUM sono un SELL THE NEWS
 
 1. **Ethereum**
    - **Intenzione:** Comprare
-   - **Motivo:** L'autore si aspetta un ritracciamento intorno ai $180 prima di cercare un'opportunità di acquisto a lungo termine, evidenziando che Ethereum merita una piccola percentuale in portafoglio nonostante la sua preferenza per Bitcoin.
+   - **Motivo:** L'autore si aspetta un ritracciamento intorno ai $3180 prima di cercare un'opportunità di acquisto a lungo termine, evidenziando che Ethereum merita una piccola percentuale in portafoglio nonostante la sua preferenza per Bitcoin.
 
 2. **Bitcoin**
    - **Intenzione:** Vendere

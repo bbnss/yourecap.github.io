@@ -1,3 +1,3 @@
-Le crypto viste attraverso Youtube
+## CryptoRecap
 
 https://cryptorecap.info/
